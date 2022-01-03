@@ -2,22 +2,19 @@ import pandas as pd
 import matplotlib.pyplot as plt
 # 引入 Python 內建網址解析套件
 from urllib.parse import urlsplit, parse_qs
-# 引用 pymsql 套件
 import pymysql
 
-# 建立和資料庫連線，參數為資料庫系統位址(localhost 為本機電腦別名), 帳號(預設為 root，實務上不建議直接使用), 密碼(預設為空), 資料庫名稱
-# charset 為使用編碼，cursorclass 則使用 dict 取代 tuple 當作回傳資料格式
+#cursorclass 使用 dict 取代 tuple 當作回傳資料格式
 connection = pymysql.connect(host='localhost',
                              user='root',
                              password='',
-                             # 資料庫預設為 3306 若自己有更改不同 port 請依照需求更改
                              port=3306,
                              db='demo_shop_logs',
                              charset='utf8mb4',
                              cursorclass=pymysql.cursors.DictCursor)
-# 使用 try...finally 錯誤處理，可以讓程式即便錯誤最後會關閉資料庫連線避免浪費資源
+                             
+
 try:
-    # 使用　with...as 可以讓我們程式正確執行下自動關閉資料庫連線
     with connection.cursor() as cursor:
         # 執行 SQL 敘述查詢資料
         sql = 'SELECT * FROM user_purchase_logs'
@@ -71,7 +68,7 @@ plt.title('UTM Stats')
 # 建立單一圖表
 df_utm_source.plot(kind='bar')
 
-# 若希望建立多個子圖表 subplots 於同一個畫面中，可以使用 subplots
+# 建立多個子圖表 subplots 於同一個畫面中，可以使用 subplots
 # nrows 代表列，代表 ncols 行
 fig, axes = plt.subplots(nrows=1, ncols=3)
 # 建立子圖表 axes[0] 第一個
