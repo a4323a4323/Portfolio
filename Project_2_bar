@@ -1,0 +1,41 @@
+import pymysql
+import pandas as pd
+import matplotlib.pyplot as plt
+
+connection = pymysql.connect(host='localhost',
+                             user='root',
+                             password='',
+                             port=3306,
+                             db='demo_shop_logs',
+                             charset='utf8mb4',
+                             cursorclass=pymysql.cursors.DictCursor)
+try:
+    
+    with connection.cursor() as cursor:
+        sql = """
+        SELECT
+            keyword,
+            result_num,
+            COUNT(*) AS search_count
+        FROM user_search_logs
+        WHERE action = 'SEARCH' AND result_num = 0
+        GROUP BY keyword, result_num
+        ORDER BY search_count DESC;
+        """
+        cursor.execute(sql)
+        #取出所有結果
+        items=cursor.fetchall()
+finally:
+    connection.close()
+
+keyword_stats={}
+
+for item in items:
+    keyword=item["keyword"]
+    search_count=item["search_count"]
+    keyword_stats[keyword]=search_count
+
+series_search_keyword=pd.Series(keyword_stats)
+plt.title("Search No Match keyword")
+series_search_keyword.plot(kind="bar")
+plt.show()
