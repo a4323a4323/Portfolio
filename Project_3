@@ -1,0 +1,36 @@
+import pymysql
+from efficient_apriori import apriori, itemsets
+
+connection = pymysql.connect(host='localhost',
+                             user='root',
+                             password='',
+                             port=3306,
+                             db='demo_shop_logs',
+                             charset='utf8mb4',
+                             cursorclass=pymysql.cursors.DictCursor)
+
+try:
+    with connection.cursor() as cursor:
+        # 執行 SQL 敘述查詢資料
+        sql = 'SELECT order_id,product_id FROM user_order_logs'
+        cursor.execute(sql)
+        # 取出所有結果
+        items = cursor.fetchall()
+finally:
+    connection.close()
+
+item_set=set()
+order_list=[]
+for item in items:
+    # 將 order id 轉換成 list index 所以減一（Python list 的 index 是從 0 起算）
+    order_index = int(item['order_id']) - 1
+    # 若 index 有在 order_list 中則新增進入對應 set()
+    if order_index < len(order_list):
+        order_list[order_index].add(item['product_id'])
+    else:
+        # 若 list 對應的 index 無內容則初始化一個 set
+        order_list.append(set(item["product_id"]))
+
+
+itemsets,rules=apriori(order_list,min_support=0.4,min_confidence=0.7)
+print(rules)
